@@ -37,3 +37,22 @@ jobs:
           name: playwright-test-results
           path: test-results/
           retention-days: 7
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run integration test (bridge + mock RP via compose)
+        run: npm run test:integration

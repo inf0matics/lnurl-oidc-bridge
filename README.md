@@ -90,7 +90,9 @@ challenges + single-use codes) — no database. Bundled with esbuild to
 | `npm run build` | Bundle to `.output/server/index.mjs` |
 | `npm start` | Run the built bundle |
 | `npm run lint` | ESLint |
+| `npm run test:unit` | Unit tests (`node:test`) |
 | `npm run test:e2e` | Playwright end-to-end suite |
+| `npm run test:integration` | Cross-service flow vs. a mock Logto RP (`compose.e2e.yml`; needs Docker) |
 
 ## License
 

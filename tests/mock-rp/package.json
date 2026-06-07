@@ -1,0 +1,9 @@
+{
+  "name": "mock-rp",
+  "private": true,
+  "type": "module",
+  "description": "Minimal OIDC relying party standing in for Logto in integration tests",
+  "dependencies": {
+    "jose": "^5.10.0"
+  }
+}

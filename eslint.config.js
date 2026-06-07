@@ -7,6 +7,12 @@ const nodeGlobals = {
   Buffer: 'readonly',
   __dirname: 'readonly',
   __filename: 'readonly',
+  fetch: 'readonly',
+  URL: 'readonly',
+  URLSearchParams: 'readonly',
+  TextEncoder: 'readonly',
+  TextDecoder: 'readonly',
+  setTimeout: 'readonly',
 }
 
 export default tseslint.config(

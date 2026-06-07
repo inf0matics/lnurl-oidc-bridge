@@ -32,7 +32,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `OIDC_PRIVATE_KEY_FILE`: load the signing key from a path, or generate and
   persist one (`0600`) on first boot — the recommended container setup (mount a
   volume). Example `compose.yml` now mounts `./data` and uses it.
-- Unit tests (`node:test`) covering signing-key resolution; CI runs them too.
+- Unit tests (`node:test`) covering signing-key resolution and challenge/code
+  expiry; CI runs them too.
+- Security/robustness e2e: token-endpoint client auth (basic/post, wrong/missing
+  credentials), redirect_uri binding, and proof the authorization code is bound
+  to the browser session (a third party can't poll it out).
+- Integration test (`compose.e2e.yml` + a mock Logto-style OIDC relying party):
+  drives a real browser login across two services and verifies the issued ID
+  token. Runnable via `npm run test:integration`; also a CI job.
 
 ### Changed
 
