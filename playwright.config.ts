@@ -19,5 +19,12 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    env: {
+      PORT: String(PORT),
+      OIDC_ISSUER: baseURL,
+      OIDC_CLIENT_ID: 'test-client',
+      OIDC_CLIENT_SECRET: 'test-secret',
+      OIDC_REDIRECT_URIS: `${baseURL}/cb`,
+    },
   },
 })

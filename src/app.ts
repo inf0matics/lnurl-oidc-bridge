@@ -1,6 +1,8 @@
 import { createApp, createRouter, defineEventHandler, setResponseHeader } from 'h3'
 import type { Config } from './config'
 import { discoveryDocument, jwksDocument } from './oidc'
+import { AuthStore } from './store'
+import { createAuthHandlers } from './auth'
 
 const homePage = `<!doctype html>
 <html lang="en">
@@ -41,6 +43,12 @@ export function createBridgeApp(config: Config) {
     '/jwks.json',
     defineEventHandler(() => jwksDocument(config)),
   )
+
+  // LNURL-auth login flow.
+  const auth = createAuthHandlers(config, new AuthStore())
+  router.get('/authorize', auth.authorize)
+  router.get('/lnurl/callback', auth.callback)
+  router.get('/lnurl/status', auth.status)
 
   app.use(router)
   return app

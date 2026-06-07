@@ -14,10 +14,41 @@ export interface SigningKey {
   kid: string
 }
 
+/** A relying party allowed to use the bridge (e.g. a Logto instance). */
+export interface ClientConfig {
+  clientId: string
+  clientSecret: string
+  /** Exact-match allowed redirect URIs. */
+  redirectUris: string[]
+}
+
 export interface Config {
   /** Public issuer URL, no trailing slash. Base for all OIDC endpoints. */
   issuer: string
   signingKey: SigningKey
+  /** Registered OIDC clients. Empty until configured via env. */
+  clients: ClientConfig[]
+}
+
+/** Find a registered client by id. */
+export function findClient(config: Config, clientId: string): ClientConfig | undefined {
+  return config.clients.find((c) => c.clientId === clientId)
+}
+
+function loadClients(env: NodeJS.ProcessEnv): ClientConfig[] {
+  const clientId = env.OIDC_CLIENT_ID?.trim()
+  if (!clientId) return []
+  const redirectUris = (env.OIDC_REDIRECT_URIS ?? '')
+    .split(/[\s,]+/)
+    .map((u) => u.trim())
+    .filter(Boolean)
+  return [
+    {
+      clientId,
+      clientSecret: env.OIDC_CLIENT_SECRET?.trim() ?? '',
+      redirectUris,
+    },
+  ]
 }
 
 /** RFC 7638 JWK thumbprint for an RSA public key, used as a stable `kid`. */
@@ -64,5 +95,5 @@ export function loadSigningKey(env: NodeJS.ProcessEnv = process.env): SigningKey
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const port = env.PORT ?? '3000'
   const issuer = (env.OIDC_ISSUER?.trim() || `http://localhost:${port}`).replace(/\/+$/, '')
-  return { issuer, signingKey: loadSigningKey(env) }
+  return { issuer, signingKey: loadSigningKey(env), clients: loadClients(env) }
 }
