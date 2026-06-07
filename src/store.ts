@@ -31,8 +31,8 @@ export interface AuthCode {
   createdAt: number
 }
 
-const AUTH_REQUEST_TTL_MS = 10 * 60 * 1000
-const AUTH_CODE_TTL_MS = 60 * 1000
+export const AUTH_REQUEST_TTL_MS = 10 * 60 * 1000
+export const AUTH_CODE_TTL_MS = 60 * 1000
 
 const hex = (bytes: number) => randomBytes(bytes).toString('hex')
 
@@ -46,8 +46,11 @@ export class AuthStore {
   private bySession = new Map<string, string>()
   private codes = new Map<string, AuthCode>()
 
+  /** `clock` is injectable so expiry can be tested deterministically. */
+  constructor(private readonly clock: () => number = () => Date.now()) {}
+
   private now(): number {
-    return Date.now()
+    return this.clock()
   }
 
   /** Start a login: allocate a fresh k1 + browser session. */
