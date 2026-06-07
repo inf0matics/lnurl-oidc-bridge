@@ -1,0 +1,27 @@
+{
+  "name": "lnurl-oidc-bridge",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "node build.mjs",
+    "start": "node .output/server/index.mjs",
+    "lint": "eslint .",
+    "test:e2e": "playwright test",
+    "bump-version": "npm run lint && npx changelogen@latest --release && git push --follow-tags"
+  },
+  "dependencies": {
+    "h3": "^1.13.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  }
+}

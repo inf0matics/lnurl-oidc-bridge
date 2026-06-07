@@ -1,0 +1,18 @@
+.claude/
+.initialized
+
+# dependencies
+node_modules/
+
+# build output
+.output/
+dist/
+
+# env
+.env
+.env.local
+
+# test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
