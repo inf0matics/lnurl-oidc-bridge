@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with a TL;DR overview, endpoint table, and quickstart.
 - `docs/logto-setup.md` — step-by-step guide for wiring the bridge into Logto.
 - CI: GitHub Actions workflow running lint + Playwright e2e on every push and PR.
+- `.dockerignore` to keep `node_modules`/`.git`/build output out of the image build context.
+
+### Fixed
+
+- Corrected the signing-key generation command in the docs (`openssl genpkey`
+  emits PKCS#8 by default; the `-pkcs8` flag is invalid and aborts the command).
 
 ## [0.0.1] - 2026-06-07
 

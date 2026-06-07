@@ -34,7 +34,7 @@ Based on [.env.example](../.env.example). Production values:
 OIDC_ISSUER=https://lnurl-oidc-bridge.tsp.tools
 
 # Stable RS256 signing key (PEM/PKCS#8). Generate once:
-#   openssl genpkey -algorithm RSA -pkcs8 -out signing.pem -pkeyopt rsa_keygen_bits:2048
+#   openssl genpkey -algorithm RSA -out signing.pem -pkeyopt rsa_keygen_bits:2048
 # Do NOT rely on the ephemeral dev fallback in production — tokens would stop
 # verifying after every restart.
 OIDC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----

@@ -21,8 +21,10 @@ for local dev, but tokens stop verifying after a restart. For real use, generate
 a stable RSA key:
 
 ```bash
-openssl genpkey -algorithm RSA -pkcs8 -out signing.pem -pkeyopt rsa_keygen_bits:2048
+openssl genpkey -algorithm RSA -out signing.pem -pkeyopt rsa_keygen_bits:2048
 ```
+
+(`genpkey` already writes an unencrypted PKCS#8 PEM — `-----BEGIN PRIVATE KEY-----`.)
 
 Set `OIDC_PRIVATE_KEY` to the PEM contents and `OIDC_ISSUER` to the bridge's
 public URL (no trailing slash):
