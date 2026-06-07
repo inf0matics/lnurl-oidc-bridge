@@ -68,6 +68,8 @@ Ships as a single Docker container behind Traefik. An example
 volumes; the signing key and config come from `.env`). Set `OIDC_ISSUER` to the
 public HTTPS URL matching the Traefik `Host` rule.
 
+See **[docs/install.md](docs/install.md)** for the full VPS install walkthrough.
+
 ## Stack
 
 Node 24 + TypeScript on [h3](https://h3.dev). In-memory state (ephemeral
