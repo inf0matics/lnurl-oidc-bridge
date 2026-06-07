@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- OIDC foundation (Slice 1): RS256 signing key loaded from `OIDC_PRIVATE_KEY`
+  (ephemeral fallback for dev), published at `/jwks.json` (public key only).
+- `/.well-known/openid-configuration` discovery document advertising the
+  Authorization Code + RS256 surface, with endpoints derived from `OIDC_ISSUER`.
+- `OIDC_ISSUER` / `OIDC_PRIVATE_KEY` / `OIDC_KEY_ID` env config.
+
 ## [0.0.1] - 2026-06-07
 
 ### Added

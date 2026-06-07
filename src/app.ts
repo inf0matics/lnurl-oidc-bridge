@@ -1,6 +1,8 @@
 import { createApp, createRouter, defineEventHandler, setResponseHeader } from 'h3'
+import type { Config } from './config'
+import { discoveryDocument, jwksDocument } from './oidc'
 
-const page = `<!doctype html>
+const homePage = `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -15,16 +17,31 @@ const page = `<!doctype html>
 </html>
 `
 
-export const app = createApp()
+/** Build the h3 app for the given configuration. */
+export function createBridgeApp(config: Config) {
+  const app = createApp()
+  const router = createRouter()
 
-const router = createRouter()
+  router.get(
+    '/',
+    defineEventHandler((event) => {
+      setResponseHeader(event, 'content-type', 'text/html; charset=utf-8')
+      return homePage
+    }),
+  )
 
-router.get(
-  '/',
-  defineEventHandler((event) => {
-    setResponseHeader(event, 'content-type', 'text/html; charset=utf-8')
-    return page
-  }),
-)
+  // OIDC Discovery — lets clients (and Logto) fetch the provider metadata.
+  router.get(
+    '/.well-known/openid-configuration',
+    defineEventHandler(() => discoveryDocument(config)),
+  )
 
-app.use(router)
+  // Public signing keys for verifying issued ID tokens.
+  router.get(
+    '/jwks.json',
+    defineEventHandler(() => jwksDocument(config)),
+  )
+
+  app.use(router)
+  return app
+}
