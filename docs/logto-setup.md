@@ -14,27 +14,27 @@ into a standard OIDC identity whose `sub` is the wallet's public key.
   reach it). This becomes your `OIDC_ISSUER`.
 - A self-hosted Logto instance with admin access.
 
-## 1. Generate a persistent signing key
+## 1. Signing key
 
-Without `OIDC_PRIVATE_KEY` the bridge generates an ephemeral key at boot — fine
-for local dev, but tokens stop verifying after a restart. For real use, generate
-a stable RSA key:
+The bridge needs a **stable** RS256 key so issued ID tokens keep verifying
+across restarts. The recommended container setup (see
+[install.md](install.md)) mounts a `./data` volume and sets
+`OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem` — the key is generated and
+persisted on first boot, no manual step. Just set the issuer:
+
+```bash
+OIDC_ISSUER=https://lnurl-oidc.example.com
+```
+
+Prefer to provide the key yourself? Generate one and set `OIDC_PRIVATE_KEY` to
+its PEM contents instead:
 
 ```bash
 openssl genpkey -algorithm RSA -out signing.pem -pkeyopt rsa_keygen_bits:2048
 ```
 
 (`genpkey` already writes an unencrypted PKCS#8 PEM — `-----BEGIN PRIVATE KEY-----`.)
-
-Set `OIDC_PRIVATE_KEY` to the PEM contents and `OIDC_ISSUER` to the bridge's
-public URL (no trailing slash):
-
-```bash
-OIDC_ISSUER=https://lnurl-oidc.example.com
-OIDC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
-...
------END PRIVATE KEY-----"
-```
+With neither set, the bridge refuses to start in production.
 
 ## 2. Create the connector in Logto
 

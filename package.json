@@ -8,6 +8,7 @@
     "build": "node build.mjs",
     "start": "node .output/server/index.mjs",
     "lint": "eslint .",
+    "test:unit": "node --import tsx --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
     "bump-version": "npm run lint && npx changelogen@latest --release && git push --follow-tags"
   },

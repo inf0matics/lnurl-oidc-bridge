@@ -5,6 +5,8 @@ import {
   generateKeyPairSync,
   type KeyObject,
 } from 'node:crypto'
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
 
 /** A loaded RS256 signing key plus its published public JWK. */
 export interface SigningKey {
@@ -57,27 +59,61 @@ function rsaThumbprint(jwk: JsonWebKey): string {
   return createHash('sha256').update(canonical).digest('base64url')
 }
 
+function generateRsaKey(): KeyObject {
+  return generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey
+}
+
 /**
- * Load the RS256 signing key. Uses `OIDC_PRIVATE_KEY` (PEM, PKCS#8) when set.
- * Falls back to an ephemeral key for local dev/e2e — tokens signed with it do
- * not survive a restart, which is fine until a real key is configured.
+ * Load a signing key from a file, generating and persisting one (0600) on first
+ * boot if it doesn't exist yet. This is the data-directory pattern: mount a
+ * volume and point `OIDC_PRIVATE_KEY_FILE` at a path inside it.
+ */
+function loadOrCreateKeyFile(path: string): KeyObject {
+  if (existsSync(path)) {
+    return createPrivateKey({ key: readFileSync(path, 'utf8'), format: 'pem' })
+  }
+  const privateKey = generateRsaKey()
+  const pem = privateKey.export({ type: 'pkcs8', format: 'pem' }) as string
+  mkdirSync(dirname(path), { recursive: true })
+  writeFileSync(path, pem, { mode: 0o600 })
+  chmodSync(path, 0o600) // enforce 0600 regardless of umask
+  console.warn(`[oidc] Generated a new RSA signing key at ${path} (first boot).`)
+  return privateKey
+}
+
+/**
+ * Load the RS256 signing key, in precedence order:
+ *   1. `OIDC_PRIVATE_KEY`      — inline PEM (PKCS#8).
+ *   2. `OIDC_PRIVATE_KEY_FILE` — load if present, else generate + persist (0600).
+ *   3. none — ephemeral key for local dev. In production (`NODE_ENV=production`)
+ *      this is a fatal error: we refuse to start without a durable key.
  */
 export function loadSigningKey(env: NodeJS.ProcessEnv = process.env): SigningKey {
   let privateKey: KeyObject
-  const pem = env.OIDC_PRIVATE_KEY?.trim()
-  if (pem) {
-    privateKey = createPrivateKey({ key: pem, format: 'pem' })
+  const inlinePem = env.OIDC_PRIVATE_KEY?.trim()
+  const keyFile = env.OIDC_PRIVATE_KEY_FILE?.trim()
+
+  if (inlinePem) {
+    privateKey = createPrivateKey({ key: inlinePem, format: 'pem' })
+  } else if (keyFile) {
+    privateKey = loadOrCreateKeyFile(keyFile)
+  } else if (env.NODE_ENV === 'production') {
+    throw new Error(
+      'No signing key configured. Set OIDC_PRIVATE_KEY (inline PEM) or ' +
+        'OIDC_PRIVATE_KEY_FILE (a path on a mounted volume; the key is generated on first ' +
+        'boot). Refusing to start in production with an ephemeral key.',
+    )
   } else {
-    privateKey = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey
+    privateKey = generateRsaKey()
     console.warn(
-      '[oidc] OIDC_PRIVATE_KEY not set — generated an ephemeral RSA key (dev only; ' +
-        'tokens will not verify across restarts).',
+      '[oidc] No signing key configured — generated an ephemeral RSA key (dev only; tokens ' +
+        'will not verify across restarts). Set OIDC_PRIVATE_KEY or OIDC_PRIVATE_KEY_FILE for production.',
     )
   }
 
   if (privateKey.asymmetricKeyType !== 'rsa') {
     throw new Error(
-      `OIDC_PRIVATE_KEY must be an RSA key for RS256 (got ${privateKey.asymmetricKeyType}).`,
+      `Signing key must be an RSA key for RS256 (got ${privateKey.asymmetricKeyType}).`,
     )
   }
 

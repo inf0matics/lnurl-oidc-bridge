@@ -51,10 +51,15 @@ All config is via environment variables (see [.env.example](.env.example)):
 | --- | --- |
 | `PORT` / `HOST` | HTTP bind (default `3000` / `0.0.0.0`) |
 | `OIDC_ISSUER` | Public base URL, no trailing slash; all endpoints derive from it |
-| `OIDC_PRIVATE_KEY` | RS256 signing key, PEM/PKCS#8. Ephemeral key generated if unset (**dev only**) |
+| `OIDC_PRIVATE_KEY` | RS256 signing key as an inline PEM/PKCS#8 |
+| `OIDC_PRIVATE_KEY_FILE` | Path to the signing key; generated + persisted (`0600`) on first boot if missing. Recommended for containers (mount a volume) |
 | `OIDC_KEY_ID` | Optional `kid`; defaults to the RFC 7638 JWK thumbprint |
 | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` | Registered client credentials |
 | `OIDC_REDIRECT_URIS` | Allowed redirect URIs (exact match; space/comma separated) |
+
+Provide the signing key via `OIDC_PRIVATE_KEY` **or** `OIDC_PRIVATE_KEY_FILE`. With
+neither, a throwaway key is used in dev — and the bridge **refuses to start** in
+production (`NODE_ENV=production`).
 
 ## Connecting Logto
 
@@ -64,9 +69,10 @@ wiring this bridge into a self-hosted Logto instance as a Standard OIDC connecto
 ## Deploy
 
 Ships as a single Docker container behind Traefik. An example
-[compose.yml](compose.yml) is included for a VPS — it's **stateless** (no
-volumes; the signing key and config come from `.env`). Set `OIDC_ISSUER` to the
-public HTTPS URL matching the Traefik `Host` rule.
+[compose.yml](compose.yml) is included for a VPS — it mounts a small `./data`
+volume where the signing key is generated on first boot and reused afterward
+(the rest is in-memory). Set `OIDC_ISSUER` to the public HTTPS URL matching the
+Traefik `Host` rule.
 
 See **[docs/install.md](docs/install.md)** for the full VPS install walkthrough.
 

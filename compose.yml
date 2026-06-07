@@ -3,9 +3,13 @@ services:
     image: thespielplatz/lnurl-oidc-bridge:latest
     container_name: lnurl-oidc-bridge
     restart: unless-stopped
-    # No volumes: the bridge is stateless (in-memory challenges + single-use
-    # codes). The signing key and all config come from .env — make sure
-    # OIDC_PRIVATE_KEY is a stable key so issued tokens keep verifying.
+    # The only persistent state is the RS256 signing key: it's generated on
+    # first boot into the mounted ./data volume and reused on every restart,
+    # so issued tokens keep verifying. (Challenges + codes stay in memory.)
+    volumes:
+      - ./data:/app/data
+    environment:
+      - OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.lnurl-oidc-bridge.rule=Host(`lnurl-oidc-bridge.tsp.tools`)"

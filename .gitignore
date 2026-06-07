@@ -12,6 +12,9 @@ dist/
 .env
 .env.local
 
+# runtime data (persisted signing key, etc.)
+data/
+
 # test artifacts
 test-results/
 playwright-report/

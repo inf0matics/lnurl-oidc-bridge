@@ -11,7 +11,11 @@ An example [compose.yml](../compose.yml) is included at the repo root. It uses:
   are short-lived; nothing needs to survive a restart.
 - **Traefik labels** routing `Host(lnurl-oidc-bridge.tsp.tools)` → container port
   `3000`, with the `resolver` cert resolver for HTTPS.
-- **`env_file: .env`** for all configuration.
+- **One small volume `./data`** — the only persistent state. The RS256 signing
+  key is generated into it on first boot (`OIDC_PRIVATE_KEY_FILE`) and reused on
+  every restart, so issued tokens keep verifying. Challenges + codes stay in
+  memory.
+- **`env_file: .env`** for the remaining configuration.
 - A **healthcheck** that polls `/jwks.json` via Node's built-in `fetch`.
 - The external `traefik-network`.
 
@@ -24,22 +28,18 @@ mkdir -p ~/lnurl-oidc-bridge && cd ~/lnurl-oidc-bridge
 # copy compose.yml here, then create .env (next step)
 ```
 
+The `./data` directory is created automatically when the container starts.
+
 ## 2. Create `.env`
 
-Based on [.env.example](../.env.example). Production values:
+Based on [.env.example](../.env.example). The signing key is **not** here — the
+compose file sets `OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem`, so the bridge
+generates and persists it on first boot. You only need:
 
 ```bash
 # Public HTTPS URL — MUST exactly match the Traefik Host rule in compose.yml.
 # This is the OIDC issuer, baked into every ID token.
 OIDC_ISSUER=https://lnurl-oidc-bridge.tsp.tools
-
-# Stable RS256 signing key (PEM/PKCS#8). Generate once:
-#   openssl genpkey -algorithm RSA -out signing.pem -pkeyopt rsa_keygen_bits:2048
-# Do NOT rely on the ephemeral dev fallback in production — tokens would stop
-# verifying after every restart.
-OIDC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
-...
------END PRIVATE KEY-----"
 
 # Registered client = your Logto connector (see docs/logto-setup.md).
 OIDC_CLIENT_ID=...
@@ -48,6 +48,15 @@ OIDC_REDIRECT_URIS=https://<your-logto>/callback/<connector-id>
 ```
 
 `OIDC_REDIRECT_URIS` is exact-matched; separate multiple with spaces or commas.
+
+> Prefer to manage the key yourself (e.g. a secrets manager)? Drop the `./data`
+> volume and the `OIDC_PRIVATE_KEY_FILE` line from `compose.yml`, and set an
+> inline `OIDC_PRIVATE_KEY` PEM in `.env` instead. With neither set, the
+> container **refuses to start** in production (`NODE_ENV=production`).
+>
+> Back up `./data` (or at least know that losing it rotates the key — only
+> in-flight logins are affected, since Logto keeps its own session afterward).
+> Running multiple replicas requires sharing this volume so they agree on the key.
 
 ## 3. Adjust `compose.yml`
 
@@ -58,6 +67,7 @@ Before bringing it up, double-check:
 | `image:` | Your Docker Hub image. The example uses `thespielplatz/lnurl-oidc-bridge:latest` — confirm it matches your `DOCKER_USERNAME` / `IMAGE_TAG` from the deploy workflow. |
 | `Host(...)` rule | Your real subdomain. If you change it, change `OIDC_ISSUER` to match. |
 | `loadbalancer.server.port` | `3000` (the bridge's default `PORT`). |
+| `volumes` / `OIDC_PRIVATE_KEY_FILE` | Keep both for the auto-generated persistent key, or remove both and use an inline `OIDC_PRIVATE_KEY` (see step 2). |
 | `networks` | The external network your Traefik instance uses (`traefik-network` in the example). |
 
 ## 4. Bring it up
