@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   redirects back to the client with a one-time authorization code once signed.
 - In-memory stores for pending challenges and authorization codes (TTL, single-use codes).
 - Registered-client config via `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` / `OIDC_REDIRECT_URIS`.
+- OIDC token endpoint (Slice 3): `POST /token` exchanges the authorization code
+  for a signed RS256 ID token whose `sub` is the lowercase-hex wallet pubkey
+  (`iss`/`aud`/`iat`/`exp`/`auth_time`/`nonce`), verifiable via `/jwks.json`.
+  Client auth via `client_secret_basic` / `client_secret_post`; PKCE (S256)
+  enforced when a `code_challenge` was supplied; single-use codes. This
+  completes the LNURL-auth → OIDC login loop for Logto's standard OIDC connector.
 
 ## [0.0.1] - 2026-06-07
 

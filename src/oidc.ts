@@ -14,7 +14,8 @@ export function discoveryDocument(config: Config) {
     id_token_signing_alg_values_supported: ['RS256'],
     scopes_supported: ['openid'],
     token_endpoint_auth_methods_supported: ['client_secret_post', 'client_secret_basic'],
-    claims_supported: ['sub', 'iss', 'aud', 'exp', 'iat'],
+    code_challenge_methods_supported: ['S256'],
+    claims_supported: ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce'],
   }
 }
 

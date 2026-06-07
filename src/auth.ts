@@ -1,18 +1,22 @@
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import {
   defineEventHandler,
   getQuery,
   getCookie,
   setCookie,
+  getRequestHeader,
+  readBody,
   setResponseHeader,
   setResponseStatus,
   sendRedirect,
   type H3Event,
 } from 'h3'
 import QRCode from 'qrcode'
-import type { Config } from './config'
+import type { ClientConfig, Config } from './config'
 import { findClient } from './config'
 import type { AuthStore } from './store'
 import { encodeLnurl, verifyLnurlAuthSig } from './lnurl'
+import { ID_TOKEN_LIFETIME_S, issueIdToken } from './token'
 
 const SESSION_COOKIE = 'lnurl_session'
 
@@ -27,6 +31,62 @@ function withParams(uri: string, params: Record<string, string | undefined>): st
     if (v !== undefined) url.searchParams.set(k, v)
   }
   return url.toString()
+}
+
+/** Constant-time string comparison that also guards against length leaks. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return timingSafeEqual(ab, bb)
+}
+
+/** OAuth2 token error response (RFC 6749 §5.2). */
+function oauthError(event: H3Event, status: number, error: string, description: string) {
+  setResponseStatus(event, status)
+  return { error, error_description: description }
+}
+
+type FormBody = Record<string, unknown>
+
+/** Authenticate the client via client_secret_basic or client_secret_post. */
+function authenticateClient(
+  event: H3Event,
+  body: FormBody,
+  config: Config,
+): ClientConfig | undefined {
+  let clientId: string | undefined
+  let secret: string | undefined
+
+  const authHeader = getRequestHeader(event, 'authorization')
+  if (authHeader?.startsWith('Basic ')) {
+    const decoded = Buffer.from(authHeader.slice(6), 'base64').toString('utf8')
+    const sep = decoded.indexOf(':')
+    if (sep >= 0) {
+      clientId = decodeURIComponent(decoded.slice(0, sep))
+      secret = decodeURIComponent(decoded.slice(sep + 1))
+    }
+  } else {
+    clientId = str(body.client_id)
+    secret = str(body.client_secret)
+  }
+
+  if (!clientId || secret === undefined) return undefined
+  const client = findClient(config, clientId)
+  if (!client) return undefined
+  return safeEqual(secret, client.clientSecret) ? client : undefined
+}
+
+/** Verify a PKCE code_verifier against the stored challenge (RFC 7636). */
+function verifyPkce(challenge: string, method: string | undefined, verifier: string): boolean {
+  switch (method ?? 'plain') {
+    case 'S256':
+      return safeEqual(createHash('sha256').update(verifier).digest('base64url'), challenge)
+    case 'plain':
+      return safeEqual(verifier, challenge)
+    default:
+      return false
+  }
 }
 
 function errorPage(event: H3Event, status: number, message: string): string {
@@ -163,5 +223,56 @@ export function createAuthHandlers(config: Config, store: AuthStore) {
     }
   })
 
-  return { authorize, callback, status }
+  /** OIDC Token Endpoint — exchange an authorization code for an ID token. */
+  const token = defineEventHandler(async (event) => {
+    setResponseHeader(event, 'cache-control', 'no-store')
+    setResponseHeader(event, 'pragma', 'no-cache')
+
+    const body = ((await readBody(event)) as FormBody) ?? {}
+
+    const client = authenticateClient(event, body, config)
+    if (!client) {
+      return oauthError(event, 401, 'invalid_client', 'Client authentication failed.')
+    }
+    if (str(body.grant_type) !== 'authorization_code') {
+      return oauthError(event, 400, 'unsupported_grant_type', 'Only authorization_code is supported.')
+    }
+
+    const code = str(body.code)
+    if (!code) return oauthError(event, 400, 'invalid_request', 'Missing code.')
+
+    const record = store.takeCode(code)
+    if (!record) return oauthError(event, 400, 'invalid_grant', 'Unknown or expired code.')
+    if (record.clientId !== client.clientId) {
+      return oauthError(event, 400, 'invalid_grant', 'Code was issued to another client.')
+    }
+    if (str(body.redirect_uri) !== record.redirectUri) {
+      return oauthError(event, 400, 'invalid_grant', 'redirect_uri mismatch.')
+    }
+
+    if (record.codeChallenge) {
+      const verifier = str(body.code_verifier)
+      if (!verifier || !verifyPkce(record.codeChallenge, record.codeChallengeMethod, verifier)) {
+        return oauthError(event, 400, 'invalid_grant', 'PKCE verification failed.')
+      }
+    }
+
+    const idToken = await issueIdToken(config, {
+      sub: record.pubkey,
+      aud: client.clientId,
+      nonce: record.nonce,
+      authTime: Math.floor(record.createdAt / 1000),
+    })
+
+    setResponseStatus(event, 200)
+    return {
+      access_token: randomBytes(24).toString('base64url'),
+      token_type: 'Bearer',
+      expires_in: ID_TOKEN_LIFETIME_S,
+      id_token: idToken,
+      scope: 'openid',
+    }
+  })
+
+  return { authorize, callback, status, token }
 }

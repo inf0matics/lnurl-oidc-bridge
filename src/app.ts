@@ -49,6 +49,7 @@ export function createBridgeApp(config: Config) {
   router.get('/authorize', auth.authorize)
   router.get('/lnurl/callback', auth.callback)
   router.get('/lnurl/status', auth.status)
+  router.post('/token', auth.token)
 
   app.use(router)
   return app
