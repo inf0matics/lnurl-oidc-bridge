@@ -156,12 +156,25 @@ export function createAuthHandlers(config: Config, store: AuthStore) {
     }
 
     // From here, request errors go back to the client per OIDC.
-    if (responseType !== 'code') {
-      return sendRedirect(event, withParams(redirectUri, { error: 'unsupported_response_type', state }))
+    const fail = (error: string) => sendRedirect(event, withParams(redirectUri, { error, state }))
+
+    // Request objects (JAR) are not supported.
+    if (str(q.request) !== undefined) return fail('request_not_supported')
+    if (str(q.request_uri) !== undefined) return fail('request_uri_not_supported')
+
+    if (responseType !== 'code') return fail('unsupported_response_type')
+    if (!scope.split(/\s+/).includes('openid')) return fail('invalid_scope')
+
+    // PKCE: we advertise only S256, so a challenge with any other method
+    // (including the implicit "plain" default) is rejected here.
+    const codeChallenge = str(q.code_challenge)
+    if (codeChallenge !== undefined && str(q.code_challenge_method) !== 'S256') {
+      return fail('invalid_request')
     }
-    if (!scope.split(/\s+/).includes('openid')) {
-      return sendRedirect(event, withParams(redirectUri, { error: 'invalid_scope', state }))
-    }
+
+    // We can never authenticate without interaction (the user must scan a QR),
+    // so a silent-auth request cannot be satisfied.
+    if ((str(q.prompt) ?? '').split(/\s+/).includes('none')) return fail('login_required')
 
     const req = store.createAuthRequest({
       clientId: client.clientId,
@@ -169,8 +182,8 @@ export function createAuthHandlers(config: Config, store: AuthStore) {
       state,
       nonce: str(q.nonce),
       scope,
-      codeChallenge: str(q.code_challenge),
-      codeChallengeMethod: str(q.code_challenge_method),
+      codeChallenge,
+      codeChallengeMethod: codeChallenge !== undefined ? 'S256' : undefined,
     })
 
     setCookie(event, SESSION_COOKIE, req.sessionId, {

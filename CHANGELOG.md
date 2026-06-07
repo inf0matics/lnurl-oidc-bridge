@@ -43,6 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Hardened `/authorize`: `prompt=none` → `login_required` (we can't authenticate
+  silently); `request`/`request_uri` rejected as unsupported; a `code_challenge`
+  is required to use `S256` (matching what discovery advertises — `plain` and
+  implicit-plain are rejected); duplicate security-critical params (arrays) are
+  rejected; client input is never reflected into HTML. The in-memory store is now
+  bounded (oldest evicted at capacity) so an anonymous `/authorize` flood can't
+  grow memory without limit.
 - The signing key is now resolved by precedence: `OIDC_PRIVATE_KEY` (inline PEM)
   → `OIDC_PRIVATE_KEY_FILE` (load-or-generate) → ephemeral. An ephemeral key is
   **rejected in production** (`NODE_ENV=production`): the bridge refuses to start

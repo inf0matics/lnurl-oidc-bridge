@@ -49,3 +49,15 @@ test('markSigned is idempotent — re-signing returns the same code', () => {
   const second = store.markSigned(req, 'deadbeef')
   assert.equal(second.code, first.code, 'no duplicate code minted on replay')
 })
+
+test('the pending-request store is bounded — oldest is evicted at capacity', () => {
+  const store = new AuthStore(() => 1_000, 2) // cap of 2
+  const a = store.createAuthRequest({ ...baseReq })
+  const b = store.createAuthRequest({ ...baseReq })
+  const c = store.createAuthRequest({ ...baseReq }) // evicts a
+
+  assert.equal(store.getByK1(a.k1), undefined, 'oldest evicted')
+  assert.equal(store.getBySession(a.sessionId), undefined, 'its session mapping too')
+  assert.ok(store.getByK1(b.k1), 'b retained')
+  assert.ok(store.getByK1(c.k1), 'c retained')
+})

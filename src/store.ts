@@ -46,17 +46,41 @@ export class AuthStore {
   private bySession = new Map<string, string>()
   private codes = new Map<string, AuthCode>()
 
-  /** `clock` is injectable so expiry can be tested deterministically. */
-  constructor(private readonly clock: () => number = () => Date.now()) {}
+  /**
+   * `clock` is injectable so expiry can be tested deterministically.
+   * `maxEntries` bounds each map so an anonymous flood of /authorize calls
+   * can't grow memory without limit — at capacity the oldest entry is evicted.
+   */
+  constructor(
+    private readonly clock: () => number = () => Date.now(),
+    private readonly maxEntries = 10_000,
+  ) {}
 
   private now(): number {
     return this.clock()
+  }
+
+  /** Drop the oldest (insertion-order) entry when a map is at capacity. */
+  private capRequests(): void {
+    if (this.byK1.size < this.maxEntries) return
+    const oldest = this.byK1.keys().next().value
+    if (oldest === undefined) return
+    const req = this.byK1.get(oldest)
+    this.byK1.delete(oldest)
+    if (req) this.bySession.delete(req.sessionId)
+  }
+
+  private capCodes(): void {
+    if (this.codes.size < this.maxEntries) return
+    const oldest = this.codes.keys().next().value
+    if (oldest !== undefined) this.codes.delete(oldest)
   }
 
   /** Start a login: allocate a fresh k1 + browser session. */
   createAuthRequest(
     input: Omit<AuthRequest, 'k1' | 'sessionId' | 'createdAt' | 'status'>,
   ): AuthRequest {
+    this.capRequests()
     const req: AuthRequest = {
       ...input,
       k1: hex(32),
@@ -84,6 +108,7 @@ export class AuthStore {
       const existing = this.codes.get(req.code)
       if (existing) return existing
     }
+    this.capCodes()
     const code: AuthCode = {
       code: randomBytes(32).toString('base64url'),
       pubkey,
