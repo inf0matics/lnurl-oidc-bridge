@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Client auth via `client_secret_basic` / `client_secret_post`; PKCE (S256)
   enforced when a `code_challenge` was supplied; single-use codes. This
   completes the LNURL-auth → OIDC login loop for Logto's standard OIDC connector.
+- README with a TL;DR overview, endpoint table, and quickstart.
+- `docs/logto-setup.md` — step-by-step guide for wiring the bridge into Logto.
+- CI: GitHub Actions workflow running lint + Playwright e2e on every push and PR.
 
 ## [0.0.1] - 2026-06-07
 
