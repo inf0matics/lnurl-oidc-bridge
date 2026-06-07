@@ -1,0 +1,32 @@
+services:
+  lnurl-oidc-bridge:
+    image: thespielplatz/lnurl-oidc-bridge:latest
+    container_name: lnurl-oidc-bridge
+    restart: unless-stopped
+    # No volumes: the bridge is stateless (in-memory challenges + single-use
+    # codes). The signing key and all config come from .env — make sure
+    # OIDC_PRIVATE_KEY is a stable key so issued tokens keep verifying.
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lnurl-oidc-bridge.rule=Host(`lnurl-oidc-bridge.tsp.tools`)"
+      - "traefik.http.routers.lnurl-oidc-bridge.tls.certresolver=resolver"
+      - "traefik.http.services.lnurl-oidc-bridge.loadbalancer.server.port=3000"
+    env_file:
+      - .env          # path is relative to the compose file
+    # OIDC_ISSUER in .env MUST equal https://<the Host rule above>,
+    # e.g. OIDC_ISSUER=https://lnurl-oidc-bridge.tsp.tools
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3000/jwks.json').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    external: true
+    name: traefik-network

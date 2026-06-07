@@ -8,7 +8,7 @@ signed OIDC **ID token** whose `sub` is the wallet's public key. Any OIDC-capabl
 application (e.g. a self-hosted **[Logto](https://logto.io)** instance) can then
 accept Lightning login without implementing LNURL itself.
 
-```
+```text
 App / Logto ──/authorize──▶ Bridge shows LNURL QR ──▶ wallet signs k1
      ▲                                                      │
      │                                            /lnurl/callback (verify secp256k1)
@@ -60,6 +60,13 @@ All config is via environment variables (see [.env.example](.env.example)):
 
 See **[docs/logto-setup.md](docs/logto-setup.md)** for the step-by-step guide to
 wiring this bridge into a self-hosted Logto instance as a Standard OIDC connector.
+
+## Deploy
+
+Ships as a single Docker container behind Traefik. An example
+[compose.yml](compose.yml) is included for a VPS — it's **stateless** (no
+volumes; the signing key and config come from `.env`). Set `OIDC_ISSUER` to the
+public HTTPS URL matching the Traefik `Host` rule.
 
 ## Stack
 
