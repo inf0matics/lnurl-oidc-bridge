@@ -3,6 +3,15 @@ import type { Config } from './config'
 import { discoveryDocument, jwksDocument } from './oidc'
 import { AuthStore } from './store'
 import { createAuthHandlers } from './auth'
+import { LOGO_DARK, LOGO_LIGHT } from './logos'
+
+function svgHandler(svg: string) {
+  return defineEventHandler((event) => {
+    setResponseHeader(event, 'content-type', 'image/svg+xml; charset=utf-8')
+    setResponseHeader(event, 'cache-control', 'public, max-age=86400')
+    return svg
+  })
+}
 
 const homePage = `<!doctype html>
 <html lang="en">
@@ -43,6 +52,10 @@ export function createBridgeApp(config: Config) {
     '/jwks.json',
     defineEventHandler(() => jwksDocument(config)),
   )
+
+  // Connector logos (stable URLs for Logto's social-connector config).
+  router.get('/logo.svg', svgHandler(LOGO_LIGHT))
+  router.get('/logo-dark.svg', svgHandler(LOGO_DARK))
 
   // LNURL-auth login flow.
   const auth = createAuthHandlers(config, new AuthStore())

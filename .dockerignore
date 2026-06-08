@@ -12,6 +12,7 @@ playwright/.cache
 *.md
 docs
 tests
+assets
 .env
 .env.*
 !.env.example

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/.well-known/openid-configuration` discovery document advertising the
   Authorization Code + RS256 surface, with endpoints derived from `OIDC_ISSUER`.
 - `OIDC_ISSUER` / `OIDC_PRIVATE_KEY` / `OIDC_KEY_ID` env config.
+- Connector logos served at `/logo.svg` and `/logo-dark.svg` (SVG, 24×24) for
+  Logto's social-connector branding; source files in `assets/`.
 - LNURL-auth login flow (Slice 2): `/authorize` validates the registered client
   and renders a QR login page; `/lnurl/callback` verifies the wallet's
   secp256k1 signature over the `k1` challenge (LUD-04); `/lnurl/status` polls and

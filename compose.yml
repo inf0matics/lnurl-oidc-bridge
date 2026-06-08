@@ -12,13 +12,13 @@ services:
       - OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.lnurl-oidc-bridge.rule=Host(`lnurl-oidc-bridge.tsp.tools`)"
+      - "traefik.http.routers.lnurl-oidc-bridge.rule=Host(`lnurl-oidc-bridge.example.domain`)"
       - "traefik.http.routers.lnurl-oidc-bridge.tls.certresolver=resolver"
       - "traefik.http.services.lnurl-oidc-bridge.loadbalancer.server.port=3000"
     env_file:
       - .env          # path is relative to the compose file
     # OIDC_ISSUER in .env MUST equal https://<the Host rule above>,
-    # e.g. OIDC_ISSUER=https://lnurl-oidc-bridge.tsp.tools
+    # e.g. OIDC_ISSUER=https://lnurl-oidc-bridge.example.domain
     healthcheck:
       test:
         - CMD

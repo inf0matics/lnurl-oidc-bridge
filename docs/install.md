@@ -9,7 +9,7 @@ An example [compose.yml](../compose.yml) is included at the repo root. It uses:
 
 - **No `./data` volume** — challenges and authorization codes live in memory and
   are short-lived; nothing needs to survive a restart.
-- **Traefik labels** routing `Host(lnurl-oidc-bridge.tsp.tools)` → container port
+- **Traefik labels** routing `Host(lnurl-oidc-bridge.example.domain)` → container port
   `3000`, with the `resolver` cert resolver for HTTPS.
 - **One small volume `./data`** — the only persistent state. The RS256 signing
   key is generated into it on first boot (`OIDC_PRIVATE_KEY_FILE`) and reused on
@@ -39,7 +39,7 @@ generates and persists it on first boot. You only need:
 ```bash
 # Public HTTPS URL — MUST exactly match the Traefik Host rule in compose.yml.
 # This is the OIDC issuer, baked into every ID token.
-OIDC_ISSUER=https://lnurl-oidc-bridge.tsp.tools
+OIDC_ISSUER=https://lnurl-oidc-bridge.example.domain
 
 # Registered client = your Logto connector (see docs/logto-setup.md).
 OIDC_CLIENT_ID=...
@@ -81,8 +81,8 @@ docker compose logs -f          # watch startup
 Verify the public endpoints:
 
 ```bash
-curl https://lnurl-oidc-bridge.tsp.tools/.well-known/openid-configuration
-curl https://lnurl-oidc-bridge.tsp.tools/jwks.json
+curl https://lnurl-oidc-bridge.example.domain/.well-known/openid-configuration
+curl https://lnurl-oidc-bridge.example.domain/jwks.json
 ```
 
 ## Updating

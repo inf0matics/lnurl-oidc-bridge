@@ -25,6 +25,7 @@ App / Logto ──/authorize──▶ Bridge shows LNURL QR ──▶ wallet sig
 | `/lnurl/callback` | GET | Wallet submits its signature (LUD-04) |
 | `/lnurl/status` | GET | Browser poll → redirect with `code` once signed |
 | `/token` | POST | Exchange `code` → signed ID token |
+| `/logo.svg`, `/logo-dark.svg` | GET | Connector logos (for Logto's social-connector branding) |
 
 `sub` is the wallet's compressed secp256k1 public key as lowercase hex.
 
