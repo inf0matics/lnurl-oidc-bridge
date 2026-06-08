@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Connector logo art is now a padlock-with-lightning-bolt mark (light/dark variants).
+- Unified the user-facing screens (landing, login, error) on one tsp.tools-styled
+  design via a shared `pageShell`, with a single footer combining the release
+  version + GitHub link and the "keine E-Mail, kein Passwort" tagline. The root
+  page now uses the same card design as the login screen.
 
 ## [0.0.2] - 2026-06-08
 
