@@ -20,8 +20,34 @@ export interface SigningKey {
 export interface ClientConfig {
   clientId: string
   clientSecret: string
-  /** Exact-match allowed redirect URIs. */
+  /** Exact-match allowed redirect URIs (advanced / non-Logto). */
   redirectUris: string[]
+  /** Trusted origin (from LOGTO_ENDPOINT); Logto callback paths under it are allowed. */
+  logtoOrigin?: string
+}
+
+// Logto's callback path shapes — the only paths accepted under the trusted origin.
+const LOGTO_CALLBACK_PATHS = [
+  /^\/callback\/[\w-]+$/, // sign-in
+  /^\/account\/callback\/social\/[\w-]+$/, // account linking
+]
+
+/**
+ * Is `redirectUri` allowed for this client? Either an exact registered URI, or a
+ * Logto sign-in / account-linking callback under the configured Logto origin.
+ * Pinning the origin is the security boundary; the connector id in the path is
+ * public and need not be configured.
+ */
+export function isRedirectAllowed(client: ClientConfig, redirectUri: string): boolean {
+  if (client.redirectUris.includes(redirectUri)) return true
+  if (!client.logtoOrigin) return false
+  let url: URL
+  try {
+    url = new URL(redirectUri)
+  } catch {
+    return false
+  }
+  return url.origin === client.logtoOrigin && LOGTO_CALLBACK_PATHS.some((re) => re.test(url.pathname))
 }
 
 export interface Config {
@@ -53,43 +79,34 @@ export function findClient(config: Config, clientId: string): ClientConfig | und
   return config.clients.find((c) => c.clientId === clientId)
 }
 
-/**
- * The two callback URLs Logto uses for a connector, by purpose. Logto sends a
- * different redirect_uri depending on the flow, and the bridge exact-matches
- * redirect_uri — so both must be registered.
- */
-export function logtoRedirectUris(endpoint: string, connectorId: string): string[] {
-  const base = endpoint.replace(/\/+$/, '')
-  return [
-    `${base}/callback/${connectorId}`, // sign-in
-    `${base}/account/callback/social/${connectorId}`, // account linking
-  ]
-}
-
 function loadClients(env: NodeJS.ProcessEnv): ClientConfig[] {
   const clientId = env.OIDC_CLIENT_ID?.trim()
   if (!clientId) return []
 
-  const redirectUris = new Set<string>()
-
-  // Logto-native: derive the sign-in + account-linking callbacks from the
-  // Logto endpoint and connector id (the normal way to configure this).
+  // Logto-native: trust this origin. The bridge accepts Logto's sign-in and
+  // account-linking callbacks under it — no per-connector config needed.
+  let logtoOrigin: string | undefined
   const logtoEndpoint = env.LOGTO_ENDPOINT?.trim()
-  const connectorId = env.LOGTO_CONNECTOR_ID?.trim()
-  if (logtoEndpoint && connectorId) {
-    for (const uri of logtoRedirectUris(logtoEndpoint, connectorId)) redirectUris.add(uri)
+  if (logtoEndpoint) {
+    try {
+      logtoOrigin = new URL(logtoEndpoint).origin
+    } catch {
+      throw new Error(`LOGTO_ENDPOINT is not a valid URL: ${logtoEndpoint}`)
+    }
   }
 
   // Advanced / non-Logto: explicit exact-match redirect URIs.
-  for (const uri of (env.OIDC_REDIRECT_URIS ?? '').split(/[\s,]+/)) {
-    if (uri.trim()) redirectUris.add(uri.trim())
-  }
+  const redirectUris = (env.OIDC_REDIRECT_URIS ?? '')
+    .split(/[\s,]+/)
+    .map((u) => u.trim())
+    .filter(Boolean)
 
   return [
     {
       clientId,
       clientSecret: env.OIDC_CLIENT_SECRET?.trim() ?? '',
-      redirectUris: [...redirectUris],
+      redirectUris,
+      logtoOrigin,
     },
   ]
 }

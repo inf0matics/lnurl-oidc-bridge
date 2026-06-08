@@ -56,8 +56,8 @@ All config is via environment variables (see [.env.example](.env.example)):
 | `OIDC_PRIVATE_KEY_FILE` | Path to the signing key; generated + persisted (`0600`) on first boot if missing. Recommended for containers (mount a volume) |
 | `OIDC_KEY_ID` | Optional `kid`; defaults to the RFC 7638 JWK thumbprint |
 | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` | Registered client credentials |
-| `LOGTO_ENDPOINT` / `LOGTO_CONNECTOR_ID` | Your Logto instance + connector id; the bridge derives both callback URLs (sign-in + account linking) |
-| `OIDC_REDIRECT_URIS` | Advanced: extra exact-match redirect URIs (space/comma separated); unioned with the Logto-derived ones |
+| `LOGTO_ENDPOINT` | Your Logto instance URL; the bridge accepts Logto's sign-in + account-linking callbacks under this origin |
+| `OIDC_REDIRECT_URIS` | Advanced: extra exact-match redirect URIs (space/comma separated), in addition to the Logto origin |
 
 Provide the signing key via `OIDC_PRIVATE_KEY` **or** `OIDC_PRIVATE_KEY_FILE`. With
 neither, a throwaway key is used in dev — and the bridge **refuses to start** in

@@ -45,10 +45,9 @@ OIDC_ISSUER=https://lnurl-oidc-bridge.example.domain
 OIDC_CLIENT_ID=...
 OIDC_CLIENT_SECRET=...
 
-# Logto endpoint + connector id — the bridge registers both callback URLs
-# (sign-in and account linking) from these.
+# Logto endpoint — the bridge accepts both callback URLs (sign-in and account
+# linking) under this origin.
 LOGTO_ENDPOINT=https://<your-logto>
-LOGTO_CONNECTOR_ID=<connector-id>
 ```
 
 > Prefer to manage the key yourself (e.g. a secrets manager)? Drop the `./data`

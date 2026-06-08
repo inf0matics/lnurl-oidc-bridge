@@ -13,7 +13,7 @@ import {
 } from 'h3'
 import QRCode from 'qrcode'
 import type { ClientConfig, Config } from './config'
-import { findClient } from './config'
+import { findClient, isRedirectAllowed } from './config'
 import type { AuthStore } from './store'
 import { encodeLnurl, verifyLnurlAuthSig } from './lnurl'
 import { ID_TOKEN_LIFETIME_S, issueIdToken } from './token'
@@ -211,7 +211,7 @@ export function createAuthHandlers(config: Config, store: AuthStore) {
     // redirect_uri / client_id are validated first and never trusted for redirects.
     const client = clientId ? findClient(config, clientId) : undefined
     if (!client) return errorPage(event, config, 400, 'Unknown or missing client_id.')
-    if (!redirectUri || !client.redirectUris.includes(redirectUri)) {
+    if (!redirectUri || !isRedirectAllowed(client, redirectUri)) {
       return errorPage(event, config, 400, 'Unregistered or missing redirect_uri.')
     }
 
