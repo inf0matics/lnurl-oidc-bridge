@@ -153,7 +153,7 @@ const LOGIN_SCRIPT = `<script>
 
       function markLoggedIn() {
         document.getElementById('status').classList.add('ok')
-        document.getElementById('statusText').textContent = 'Eingeloggt ✓'
+        document.getElementById('statusText').textContent = 'Signed in ✓'
       }
 
       async function poll() {
@@ -166,7 +166,7 @@ const LOGIN_SCRIPT = `<script>
             return
           }
           if (d.status === 'expired') {
-            document.getElementById('statusText').textContent = 'Login abgelaufen — bitte neu laden.'
+            document.getElementById('statusText').textContent = 'Login expired — please reload.'
             return
           }
         } catch (e) {}
@@ -177,12 +177,12 @@ const LOGIN_SCRIPT = `<script>
 
 function loginPage(config: Config, lnurl: string, qrDataUrl: string): string {
   return pageShell(config, {
-    lang: 'de',
+    lang: 'en',
     title: 'lnurl-oidc-bridge — Login with Lightning',
     extraStyles: LOGIN_STYLES,
     body: `      <img class="logo" src="/logo.svg" alt="" width="86" height="94" />
       <h1>Login with <span class="lit">Lightning</span></h1>
-      <p class="subtitle">Scan den QR-Code mit deiner Lightning-Wallet</p>
+      <p class="subtitle">Scan the QR code with your Lightning wallet</p>
 
       <div class="qr-wrap"><img alt="LNURL-auth QR code" src="${qrDataUrl}" /></div>
 
@@ -191,9 +191,9 @@ function loginPage(config: Config, lnurl: string, qrDataUrl: string): string {
         <button class="btn-copy" id="copy" type="button">Copy</button>
       </div>
 
-      <a class="btn-wallet" id="openWallet" href="lightning:${lnurl}" role="button">In Wallet öffnen ⚡</a>
+      <a class="btn-wallet" id="openWallet" href="lightning:${lnurl}" role="button">Open in wallet ⚡</a>
 
-      <div class="status" id="status"><span class="dot"></span><span id="statusText">Warte auf Signatur…</span></div>`,
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">Waiting for signature…</span></div>`,
     tail: LOGIN_SCRIPT,
   })
 }

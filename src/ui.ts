@@ -46,7 +46,7 @@ const BASE_STYLES = `
 export function footer(config: Config): string {
   return `<footer>
       <span>v${escapeHtml(config.version)}</span> · <a href="${escapeHtml(config.repoUrl)}" rel="noreferrer">GitHub</a><br />
-      keine E-Mail, kein Passwort
+      no email, no password
     </footer>`
 }
 
