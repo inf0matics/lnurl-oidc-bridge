@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.5
+
+[compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.4...v0.0.5)
+
+### 📖 Documentation
+
+- Account-center social linking needs Logto >= 1.40.0 ([ad5c918](https://github.com/inf0matics/lnurl-oidc-bridge/commit/ad5c918))
+- Remove redundant [Unreleased] changelog block ([3eea803](https://github.com/inf0matics/lnurl-oidc-bridge/commit/3eea803))
+
+### ❤️ Contributors
+
+- Inf0matics <fil@thespielplatz.com>
+
 ## v0.0.4
 
 [compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.3...v0.0.4)
