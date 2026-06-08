@@ -55,17 +55,16 @@ With neither set, the bridge refuses to start in production.
    | grant type | **Authorization Code** (the only one supported) |
 
 4. **Branding (logo).** The connector form asks for a **Connector logo URL** and a
-   **dark version**. The bridge serves both (SVG, 24×24, matching Logto's
-   connector design system):
+   **dark version**. The bridge serves both as scalable SVGs:
 
    | Logto field | Value |
    | --- | --- |
    | Connector logo URL | `https://lnurl-oidc.example.com/logo.svg` |
    | Dark version | `https://lnurl-oidc.example.com/logo-dark.svg` |
 
-   These are a Lightning-bolt mark (electric gradient on light backgrounds, white
-   on dark). The source files live in [assets/](../assets/) if you'd rather host
-   them elsewhere or customise them.
+   These are a padlock-with-lightning-bolt mark (tuned for light and dark
+   backgrounds respectively). The source files live in [assets/](../assets/) if
+   you'd rather host them elsewhere or customise them.
 
 5. Save. Logto shows the connector's **callback/redirect URI**, e.g.
    `https://<your-logto>/callback/<connector-id>`. Copy it.

@@ -40,7 +40,7 @@ function homePage(config: Config): string {
         color: #1a1a2e; background: #f7f8fc;
       }
       main { max-width: 32rem; text-align: center; }
-      .logo { width: 56px; height: 56px; margin-bottom: 1rem; }
+      .logo { width: 56px; height: auto; margin-bottom: 1rem; }
       h1 { margin: 0 0 .5rem; font-size: 1.6rem; letter-spacing: -.01em; }
       p { margin: 0; color: #4a4a63; }
       footer { font-size: .85rem; color: #7a7a90; }
@@ -54,7 +54,7 @@ function homePage(config: Config): string {
   </head>
   <body>
     <main>
-      <img class="logo" src="/logo.svg" alt="" width="56" height="56" />
+      <img class="logo" src="/logo.svg" alt="" width="56" height="61" />
       <h1>lnurl-oidc-bridge</h1>
       <p>
         Sign in with a Lightning wallet, get a standard OpenID Connect identity.

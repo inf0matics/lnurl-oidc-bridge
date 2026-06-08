@@ -8,6 +8,6 @@ for (const path of ['/logo.svg', '/logo-dark.svg']) {
     expect(res.headers()['cache-control']).toContain('max-age')
     const body = await res.text()
     expect(body).toContain('<svg')
-    expect(body).toContain('viewBox="0 0 24 24"')
+    expect(body).toMatch(/viewBox="0 0 \d+ \d+"/)
   })
 }
