@@ -136,7 +136,7 @@ works.
 | --- | --- |
 | `redirect_uri` error on `/authorize` | `LOGTO_ENDPOINT` not set, or its origin doesn't match Logto's callback URL |
 | "This social sign-in method is not enabled" when **signing in** | Connector not enabled in **Sign-in & account → Sign-up and sign-in → Social sign-in** (step 4) |
-| "This social sign-in method is not enabled" when **linking from the Account Center** (sign-in works) | **Sign-in & account → Account center**: enable the Account API and set the **Social** field to **Edit** (step 4) |
+| "This social sign-in method is not enabled" when **linking from the Account Center** (sign-in works) | First: **Sign-in & account → Account center**: enable the Account API and set the **Social** field to **Edit** (step 4). If that's already set, **upgrade Logto to ≥ 1.40.0** — earlier versions had a bug in the account-center social-linking callback (it never exchanged the code at `/token`); fixed in 1.40.0 |
 | `invalid_client` at `/token` | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` mismatch with Logto |
 | ID token signature fails in Logto | `OIDC_ISSUER` mismatch, or signing key changed (ephemeral key + restart) |
 | Wallet can't reach the callback | Bridge not publicly reachable over HTTPS |
