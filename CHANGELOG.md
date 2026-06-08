@@ -51,28 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Inf0matics <fil@thespielplatz.com>
 
-## [Unreleased]
-
-### Added
-
-- Landing page at `/` — header, short description, and a footer with the release
-  version and a GitHub link (`GITHUB_URL`, configurable in `.env`). Replaces the
-  placeholder hello-world page.
-
-### Changed
-
-- Connector logo art is now a padlock-with-lightning-bolt mark (light/dark variants).
-- Logto-native redirect config: set `LOGTO_ENDPOINT` and the bridge accepts
-  Logto's **sign-in** (`/callback/<id>`) and **account-linking**
-  (`/account/callback/social/<id>`) callbacks under that origin — no per-connector
-  config. The origin is the security boundary; the connector id (public, in the
-  path) need not be configured. `OIDC_REDIRECT_URIS` remains as an advanced
-  exact-match escape hatch for non-Logto / custom URLs.
-- Unified the user-facing screens (landing, login, error) on one tsp.tools-styled
-  design via a shared `pageShell`, with a single footer combining the release
-  version + GitHub link and the "keine E-Mail, kein Passwort" tagline. The root
-  page now uses the same card design as the login screen.
-
 ## [0.0.2] - 2026-06-08
 
 The first functional release: a complete LNURL-auth → OpenID Connect bridge.
