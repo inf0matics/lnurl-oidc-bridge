@@ -4,6 +4,36 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.3
+
+[compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.2...v0.0.3)
+
+### 🚀 Enhancements
+
+- Replace hello-world index with a landing page ([cc3d0d9](https://github.com/inf0matics/lnurl-oidc-bridge/commit/cc3d0d9))
+- New padlock-with-bolt connector logos ([52cbc1b](https://github.com/inf0matics/lnurl-oidc-bridge/commit/52cbc1b))
+- Style the login page (tsp.tools brand) and isolate e2e port ([d74f53b](https://github.com/inf0matics/lnurl-oidc-bridge/commit/d74f53b))
+- Make all user-facing copy English ([cc45b9f](https://github.com/inf0matics/lnurl-oidc-bridge/commit/cc45b9f))
+- Derive Logto callback URLs by purpose (sign-in, account linking) ([d898278](https://github.com/inf0matics/lnurl-oidc-bridge/commit/d898278))
+- Validate Logto redirects by origin, drop LOGTO_CONNECTOR_ID ([305183c](https://github.com/inf0matics/lnurl-oidc-bridge/commit/305183c))
+
+### 💅 Refactors
+
+- Unify user-facing screens on a shared design + footer ([bbfc14f](https://github.com/inf0matics/lnurl-oidc-bridge/commit/bbfc14f))
+
+### 📖 Documentation
+
+- Reconcile CHANGELOG into one Keep a Changelog structure ([6a32d45](https://github.com/inf0matics/lnurl-oidc-bridge/commit/6a32d45))
+- Note Logto's separate sign-in vs account-linking callback URLs ([e6440b5](https://github.com/inf0matics/lnurl-oidc-bridge/commit/e6440b5))
+
+### 🏡 Chore
+
+- Fix type errors and add typecheck to CI ([be4dcdf](https://github.com/inf0matics/lnurl-oidc-bridge/commit/be4dcdf))
+
+### ❤️ Contributors
+
+- Inf0matics <fil@thespielplatz.com>
+
 ## [Unreleased]
 
 ### Added
