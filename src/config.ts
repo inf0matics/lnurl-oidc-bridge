@@ -60,6 +60,8 @@ export interface Config {
   version: string
   /** Source repository URL, linked from the landing page footer. */
   repoUrl: string
+  /** Log each request (method, path, status) — set LOG_REQUESTS=true to debug. */
+  logRequests: boolean
 }
 
 const DEFAULT_REPO_URL = 'https://github.com/inf0matics/lnurl-oidc-bridge'
@@ -196,5 +198,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     clients: loadClients(env),
     version: loadVersion(),
     repoUrl,
+    logRequests: env.LOG_REQUESTS === 'true',
   }
 }

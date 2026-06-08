@@ -30,7 +30,17 @@ function homePage(config: Config): string {
 
 /** Build the h3 app for the given configuration. */
 export function createBridgeApp(config: Config) {
-  const app = createApp()
+  const app = createApp(
+    config.logRequests
+      ? {
+          // Optional access log (LOG_REQUESTS=true) — handy for confirming what a
+          // client like Logto actually calls (e.g. whether /token is hit).
+          onBeforeResponse: (event) => {
+            console.log(`[req] ${event.method} ${event.path} -> ${event.node.res.statusCode}`)
+          },
+        }
+      : {},
+  )
   const router = createRouter()
 
   const landing = homePage(config)
