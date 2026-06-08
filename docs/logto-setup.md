@@ -96,8 +96,11 @@ is what causes **"Unregistered or missing redirect_uri"** on `/authorize`.
 
 ## 4. Enable it in your sign-in experience
 
-In Logto, add the connector to your **Sign-in experience** so a
-"Sign in with Lightning" button appears.
+In Logto, go to **Sign-in & account → Sign-up and sign-in** and, under **Social
+sign-in**, **add the connector**. This both shows a "Sign in with Lightning"
+button and — importantly — **enables the method for account linking**. The
+Account Center only offers methods that are enabled here; without it you'll get
+**"This social sign-in method is not enabled"** after a successful scan.
 
 ## How the login flows
 
@@ -127,6 +130,7 @@ In Logto, add the connector to your **Sign-in experience** so a
 | Symptom | Likely cause |
 | --- | --- |
 | `redirect_uri` error on `/authorize` | `LOGTO_ENDPOINT` not set, or its origin doesn't match Logto's callback URL |
+| "This social sign-in method is not enabled" (after a successful scan) | Logto-side: the connector isn't enabled in **Sign-in & account → Sign-up and sign-in → Social sign-in**. Add it there (step 4) |
 | `invalid_client` at `/token` | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` mismatch with Logto |
 | ID token signature fails in Logto | `OIDC_ISSUER` mismatch, or signing key changed (ephemeral key + restart) |
 | Wallet can't reach the callback | Bridge not publicly reachable over HTTPS |
