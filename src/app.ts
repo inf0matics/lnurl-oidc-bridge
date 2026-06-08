@@ -13,31 +13,74 @@ function svgHandler(svg: string) {
   })
 }
 
-const homePage = `<!doctype html>
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c,
+  )
+}
+
+function homePage(config: Config): string {
+  const repo = escapeHtml(config.repoUrl)
+  const version = escapeHtml(config.version)
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>lnurl-oidc-bridge</title>
+    <link rel="icon" href="/logo.svg" />
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 1.5rem; padding: 2rem;
+        font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        color: #1a1a2e; background: #f7f8fc;
+      }
+      main { max-width: 32rem; text-align: center; }
+      .logo { width: 56px; height: 56px; margin-bottom: 1rem; }
+      h1 { margin: 0 0 .5rem; font-size: 1.6rem; letter-spacing: -.01em; }
+      p { margin: 0; color: #4a4a63; }
+      footer { font-size: .85rem; color: #7a7a90; }
+      footer a { color: inherit; }
+      @media (prefers-color-scheme: dark) {
+        body { color: #e8e8f0; background: #16161a; }
+        p { color: #b8b8c8; }
+        footer { color: #8a8a9a; }
+      }
+    </style>
   </head>
   <body>
     <main>
-      <h1>hello world</h1>
+      <img class="logo" src="/logo.svg" alt="" width="56" height="56" />
+      <h1>lnurl-oidc-bridge</h1>
+      <p>
+        Sign in with a Lightning wallet, get a standard OpenID Connect identity.
+        This service turns an LNURL-auth challenge into a signed OIDC ID token —
+        no email, no password.
+      </p>
     </main>
+    <footer>
+      <span>v${version}</span> · <a href="${repo}" rel="noreferrer">GitHub</a>
+    </footer>
   </body>
 </html>
 `
+}
 
 /** Build the h3 app for the given configuration. */
 export function createBridgeApp(config: Config) {
   const app = createApp()
   const router = createRouter()
 
+  const landing = homePage(config)
   router.get(
     '/',
     defineEventHandler((event) => {
       setResponseHeader(event, 'content-type', 'text/html; charset=utf-8')
-      return homePage
+      return landing
     }),
   )
 

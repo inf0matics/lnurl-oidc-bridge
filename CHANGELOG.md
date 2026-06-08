@@ -48,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Landing page at `/` — header, short description, and a footer with the release
+  version and a GitHub link (`GITHUB_URL`, configurable in `.env`). Replaces the
+  placeholder hello-world page.
 - OIDC foundation (Slice 1): RS256 signing key loaded from `OIDC_PRIVATE_KEY`
   (ephemeral fallback for dev), published at `/jwks.json` (public key only).
 - `/.well-known/openid-configuration` discovery document advertising the

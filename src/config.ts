@@ -6,7 +6,7 @@ import {
   type KeyObject,
 } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 
 /** A loaded RS256 signing key plus its published public JWK. */
 export interface SigningKey {
@@ -30,6 +30,22 @@ export interface Config {
   signingKey: SigningKey
   /** Registered OIDC clients. Empty until configured via env. */
   clients: ClientConfig[]
+  /** Release version, shown on the landing page. */
+  version: string
+  /** Source repository URL, linked from the landing page footer. */
+  repoUrl: string
+}
+
+const DEFAULT_REPO_URL = 'https://github.com/inf0matics/lnurl-oidc-bridge'
+
+/** Read the release version from package.json (cwd), preferring a CI special-version. */
+function loadVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
+    return pkg.meta?.['special-version'] ?? pkg.version ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
 }
 
 /** Find a registered client by id. */
@@ -131,5 +147,12 @@ export function loadSigningKey(env: NodeJS.ProcessEnv = process.env): SigningKey
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const port = env.PORT ?? '3000'
   const issuer = (env.OIDC_ISSUER?.trim() || `http://localhost:${port}`).replace(/\/+$/, '')
-  return { issuer, signingKey: loadSigningKey(env), clients: loadClients(env) }
+  const repoUrl = (env.GITHUB_URL?.trim() || DEFAULT_REPO_URL).replace(/\/+$/, '')
+  return {
+    issuer,
+    signingKey: loadSigningKey(env),
+    clients: loadClients(env),
+    version: loadVersion(),
+    repoUrl,
+  }
 }
