@@ -44,10 +44,12 @@ OIDC_ISSUER=https://lnurl-oidc-bridge.example.domain
 # Registered client = your Logto connector (see docs/logto-setup.md).
 OIDC_CLIENT_ID=...
 OIDC_CLIENT_SECRET=...
-OIDC_REDIRECT_URIS=https://<your-logto>/callback/<connector-id>
-```
 
-`OIDC_REDIRECT_URIS` is exact-matched; separate multiple with spaces or commas.
+# Logto endpoint + connector id — the bridge registers both callback URLs
+# (sign-in and account linking) from these.
+LOGTO_ENDPOINT=https://<your-logto>
+LOGTO_CONNECTOR_ID=<connector-id>
+```
 
 > Prefer to manage the key yourself (e.g. a secrets manager)? Drop the `./data`
 > volume and the `OIDC_PRIVATE_KEY_FILE` line from `compose.yml`, and set an

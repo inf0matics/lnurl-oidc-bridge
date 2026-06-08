@@ -71,26 +71,29 @@ With neither set, the bridge refuses to start in production.
 
 ## 3. Configure the bridge's client
 
-Mirror the same credentials and the Logto callback URI into the bridge's
-environment, then restart the bridge:
+Mirror the same credentials into the bridge's environment, plus your **Logto
+endpoint** and the **connector id**, then restart the bridge:
 
 ```bash
 OIDC_CLIENT_ID=<the client id you chose in Logto>
 OIDC_CLIENT_SECRET=<the client secret you chose in Logto>
-OIDC_REDIRECT_URIS="https://<your-logto>/callback/<connector-id> https://<your-logto>/account/callback/social/<connector-id>"
+LOGTO_ENDPOINT=https://<your-logto>
+LOGTO_CONNECTOR_ID=<connector-id>
 ```
 
-`OIDC_REDIRECT_URIS` is **exact-matched**. Separate multiple URIs with spaces or commas.
+From these the bridge registers **both** callback URLs Logto uses — so you never
+list redirect URLs by hand:
 
-> **Register both callback URLs.** Logto uses different redirect URIs for
-> different flows, and each must be listed:
->
-> - **Sign-in** (sign-in experience): `https://<your-logto>/callback/<connector-id>`
-> - **Account linking** (Account Center): `https://<your-logto>/account/callback/social/<connector-id>`
->
-> If a URL is missing you'll get **"Unregistered or missing redirect_uri"** on
-> `/authorize`. `<connector-id>` is the same for both (it's the connector's id,
-> visible in the callback URI Logto shows and in the `/authorize` URL it builds).
+- **Sign-in** (sign-in experience): `<endpoint>/callback/<connector-id>`
+- **Account linking** (Account Center): `<endpoint>/account/callback/social/<connector-id>`
+
+The `<connector-id>` is the segment shown in the callback URI Logto displays for
+the connector (and in the `/authorize` URL it builds). A missing redirect URL is
+what causes **"Unregistered or missing redirect_uri"** on `/authorize`.
+
+> Advanced: for non-Logto clients or custom callback URLs you can still set
+> `OIDC_REDIRECT_URIS` (space/comma separated, exact-matched); it's unioned with
+> the Logto-derived ones.
 
 ## 4. Enable it in your sign-in experience
 
@@ -124,7 +127,7 @@ In Logto, add the connector to your **Sign-in experience** so a
 
 | Symptom | Likely cause |
 | --- | --- |
-| `redirect_uri` error on `/authorize` | Logto's callback URI not in `OIDC_REDIRECT_URIS` (must match exactly). Account-linking uses a different URL than sign-in — register both (see step 3) |
+| `redirect_uri` error on `/authorize` | `LOGTO_ENDPOINT` / `LOGTO_CONNECTOR_ID` not set or wrong, so the callback isn't registered (exact match). The connector id must match the one in Logto's callback URI |
 | `invalid_client` at `/token` | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` mismatch with Logto |
 | ID token signature fails in Logto | `OIDC_ISSUER` mismatch, or signing key changed (ephemeral key + restart) |
 | Wallet can't reach the callback | Bridge not publicly reachable over HTTPS |

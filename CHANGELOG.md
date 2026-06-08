@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Connector logo art is now a padlock-with-lightning-bolt mark (light/dark variants).
+- Logto-native redirect config: set `LOGTO_ENDPOINT` + `LOGTO_CONNECTOR_ID` and the
+  bridge registers both callback URLs Logto uses by purpose — **sign-in**
+  (`/callback/<id>`) and **account linking** (`/account/callback/social/<id>`) —
+  instead of hand-listing URLs. `OIDC_REDIRECT_URIS` remains as an advanced
+  escape hatch (non-Logto / custom URLs), unioned with the derived ones.
 - Unified the user-facing screens (landing, login, error) on one tsp.tools-styled
   design via a shared `pageShell`, with a single footer combining the release
   version + GitHub link and the "keine E-Mail, kein Passwort" tagline. The root

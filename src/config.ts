@@ -53,18 +53,43 @@ export function findClient(config: Config, clientId: string): ClientConfig | und
   return config.clients.find((c) => c.clientId === clientId)
 }
 
+/**
+ * The two callback URLs Logto uses for a connector, by purpose. Logto sends a
+ * different redirect_uri depending on the flow, and the bridge exact-matches
+ * redirect_uri — so both must be registered.
+ */
+export function logtoRedirectUris(endpoint: string, connectorId: string): string[] {
+  const base = endpoint.replace(/\/+$/, '')
+  return [
+    `${base}/callback/${connectorId}`, // sign-in
+    `${base}/account/callback/social/${connectorId}`, // account linking
+  ]
+}
+
 function loadClients(env: NodeJS.ProcessEnv): ClientConfig[] {
   const clientId = env.OIDC_CLIENT_ID?.trim()
   if (!clientId) return []
-  const redirectUris = (env.OIDC_REDIRECT_URIS ?? '')
-    .split(/[\s,]+/)
-    .map((u) => u.trim())
-    .filter(Boolean)
+
+  const redirectUris = new Set<string>()
+
+  // Logto-native: derive the sign-in + account-linking callbacks from the
+  // Logto endpoint and connector id (the normal way to configure this).
+  const logtoEndpoint = env.LOGTO_ENDPOINT?.trim()
+  const connectorId = env.LOGTO_CONNECTOR_ID?.trim()
+  if (logtoEndpoint && connectorId) {
+    for (const uri of logtoRedirectUris(logtoEndpoint, connectorId)) redirectUris.add(uri)
+  }
+
+  // Advanced / non-Logto: explicit exact-match redirect URIs.
+  for (const uri of (env.OIDC_REDIRECT_URIS ?? '').split(/[\s,]+/)) {
+    if (uri.trim()) redirectUris.add(uri.trim())
+  }
+
   return [
     {
       clientId,
       clientSecret: env.OIDC_CLIENT_SECRET?.trim() ?? '',
-      redirectUris,
+      redirectUris: [...redirectUris],
     },
   ]
 }
