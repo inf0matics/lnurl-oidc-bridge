@@ -94,13 +94,18 @@ is what causes **"Unregistered or missing redirect_uri"** on `/authorize`.
 > `OIDC_REDIRECT_URIS` (space/comma separated, exact-matched), in addition to the
 > Logto origin.
 
-## 4. Enable it in your sign-in experience
+## 4. Enable it for sign-in (and, optionally, account linking)
 
-In Logto, go to **Sign-in & account → Sign-up and sign-in** and, under **Social
-sign-in**, **add the connector**. This both shows a "Sign in with Lightning"
-button and — importantly — **enables the method for account linking**. The
-Account Center only offers methods that are enabled here; without it you'll get
-**"This social sign-in method is not enabled"** after a successful scan.
+**Sign-in button.** Go to **Sign-in & account → Sign-up and sign-in** and, under
+**Social sign-in**, **add the connector** so a "Sign in with Lightning" button
+appears.
+
+**Account-center linking** (letting an existing user link a Lightning identity
+from their profile) is gated separately: go to **Sign-in & account → Account
+center**, toggle **Enable Account API**, and set the **Social** field to **Edit**
+(options are `Off` / `ReadOnly` / `Edit`). If it's `Off`/`ReadOnly`, linking
+fails with **"This social sign-in method is not enabled"** even though sign-in
+works.
 
 ## How the login flows
 
@@ -130,7 +135,8 @@ Account Center only offers methods that are enabled here; without it you'll get
 | Symptom | Likely cause |
 | --- | --- |
 | `redirect_uri` error on `/authorize` | `LOGTO_ENDPOINT` not set, or its origin doesn't match Logto's callback URL |
-| "This social sign-in method is not enabled" (after a successful scan) | Logto-side: the connector isn't enabled in **Sign-in & account → Sign-up and sign-in → Social sign-in**. Add it there (step 4) |
+| "This social sign-in method is not enabled" when **signing in** | Connector not enabled in **Sign-in & account → Sign-up and sign-in → Social sign-in** (step 4) |
+| "This social sign-in method is not enabled" when **linking from the Account Center** (sign-in works) | **Sign-in & account → Account center**: enable the Account API and set the **Social** field to **Edit** (step 4) |
 | `invalid_client` at `/token` | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` mismatch with Logto |
 | ID token signature fails in Logto | `OIDC_ISSUER` mismatch, or signing key changed (ephemeral key + restart) |
 | Wallet can't reach the callback | Bridge not publicly reachable over HTTPS |
