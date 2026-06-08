@@ -30,10 +30,14 @@ export function verifyLnurlAuthSig(k1Hex: string, sigDerHex: string, keyHex: str
     return false
   }
   try {
-    const signature = secp256k1.Signature.fromDER(sigDerHex)
-    // lowS:false — wallets may emit non-normalized signatures; malleability is
-    // irrelevant here since we only check the holder controls the linking key.
-    return secp256k1.verify(signature, k1Hex.toLowerCase(), key, { lowS: false })
+    // Parse the DER signature to compact bytes and pass everything as
+    // Uint8Array. lowS:false — wallets may emit non-normalized signatures;
+    // malleability is irrelevant here since we only check the holder controls
+    // the linking key.
+    const signature = secp256k1.Signature.fromDER(sigDerHex).toCompactRawBytes()
+    const message = Buffer.from(k1Hex.toLowerCase(), 'hex')
+    const publicKey = Buffer.from(key, 'hex')
+    return secp256k1.verify(signature, message, publicKey, { lowS: false })
   } catch {
     return false
   }

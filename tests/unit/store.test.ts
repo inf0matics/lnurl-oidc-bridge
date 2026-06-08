@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { AuthStore, AUTH_REQUEST_TTL_MS, AUTH_CODE_TTL_MS } from '../../src/store.ts'
+import { AuthStore, AUTH_REQUEST_TTL_MS, AUTH_CODE_TTL_MS } from '../../src/store'
 
 const baseReq = {
   clientId: 'c',

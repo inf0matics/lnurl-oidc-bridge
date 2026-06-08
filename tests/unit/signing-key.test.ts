@@ -4,7 +4,7 @@ import { generateKeyPairSync } from 'node:crypto'
 import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { loadSigningKey } from '../../src/config.ts'
+import { loadSigningKey } from '../../src/config'
 
 const inlinePem = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({
   type: 'pkcs8',
@@ -19,7 +19,7 @@ test('inline OIDC_PRIVATE_KEY is loaded and exposes only public JWK material', (
   assert.ok(key.kid.length > 0)
   // no private components leak into the published JWK
   for (const priv of ['d', 'p', 'q', 'dp', 'dq', 'qi']) {
-    assert.equal((key.publicJwk as Record<string, unknown>)[priv], undefined)
+    assert.equal((key.publicJwk as unknown as Record<string, unknown>)[priv], undefined)
   }
 })
 

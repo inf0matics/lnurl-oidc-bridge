@@ -8,6 +8,7 @@
     "build": "node build.mjs",
     "start": "node .output/server/index.mjs",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test:unit": "node --import tsx --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
     "test:integration": "playwright test -c playwright.integration.config.ts",
