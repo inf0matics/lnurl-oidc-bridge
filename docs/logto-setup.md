@@ -77,10 +77,20 @@ environment, then restart the bridge:
 ```bash
 OIDC_CLIENT_ID=<the client id you chose in Logto>
 OIDC_CLIENT_SECRET=<the client secret you chose in Logto>
-OIDC_REDIRECT_URIS=https://<your-logto>/callback/<connector-id>
+OIDC_REDIRECT_URIS="https://<your-logto>/callback/<connector-id> https://<your-logto>/account/callback/social/<connector-id>"
 ```
 
-`OIDC_REDIRECT_URIS` is exact-matched. Separate multiple URIs with spaces or commas.
+`OIDC_REDIRECT_URIS` is **exact-matched**. Separate multiple URIs with spaces or commas.
+
+> **Register both callback URLs.** Logto uses different redirect URIs for
+> different flows, and each must be listed:
+>
+> - **Sign-in** (sign-in experience): `https://<your-logto>/callback/<connector-id>`
+> - **Account linking** (Account Center): `https://<your-logto>/account/callback/social/<connector-id>`
+>
+> If a URL is missing you'll get **"Unregistered or missing redirect_uri"** on
+> `/authorize`. `<connector-id>` is the same for both (it's the connector's id,
+> visible in the callback URI Logto shows and in the `/authorize` URL it builds).
 
 ## 4. Enable it in your sign-in experience
 
@@ -114,7 +124,7 @@ In Logto, add the connector to your **Sign-in experience** so a
 
 | Symptom | Likely cause |
 | --- | --- |
-| `redirect_uri` error on `/authorize` | Logto's callback URI not in `OIDC_REDIRECT_URIS` (must match exactly) |
+| `redirect_uri` error on `/authorize` | Logto's callback URI not in `OIDC_REDIRECT_URIS` (must match exactly). Account-linking uses a different URL than sign-in — register both (see step 3) |
 | `invalid_client` at `/token` | `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` mismatch with Logto |
 | ID token signature fails in Logto | `OIDC_ISSUER` mismatch, or signing key changed (ephemeral key + restart) |
 | Wallet can't reach the callback | Bridge not publicly reachable over HTTPS |
