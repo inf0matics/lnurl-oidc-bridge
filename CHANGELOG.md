@@ -6,10 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v1.0.0
 
-First stable release. The LNURL-auth → OpenID Connect bridge is feature-complete:
-Lightning sign-in **and** Logto account-center linking both work in production,
-backed by unit, e2e, and cross-service integration tests gating every change. See
-the `v0.0.x` sections below for the full development history.
+First stable release — feature-complete, with Lightning sign-in and Logto
+account-center linking working in production. See the `v0.0.x` sections below for
+the development history.
 
 [compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.5...v1.0.0)
 

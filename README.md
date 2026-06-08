@@ -70,13 +70,10 @@ wiring this bridge into a self-hosted Logto instance as a Standard OIDC connecto
 
 ## Deploy
 
-Ships as a single Docker container behind Traefik. An example
-[compose.yml](compose.yml) is included for a VPS — it mounts a small `./data`
-volume where the signing key is generated on first boot and reused afterward
-(the rest is in-memory). Set `OIDC_ISSUER` to the public HTTPS URL matching the
-Traefik `Host` rule.
-
-See **[docs/install.md](docs/install.md)** for the full VPS install walkthrough.
+Ships as a single Docker container behind Traefik. The example
+[compose.yml](compose.yml) mounts a small `./data` volume for the auto-generated
+signing key (the rest is in-memory). See **[docs/install.md](docs/install.md)**
+for the full VPS walkthrough.
 
 ## Stack
 

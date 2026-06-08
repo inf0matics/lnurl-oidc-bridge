@@ -1,12 +1,10 @@
 # Connecting Logto
 
-This guide wires **lnurl-oidc-bridge** into a self-hosted [Logto](https://logto.io)
-instance as a **Standard OIDC connector**, so users can sign in with a Lightning
-wallet alongside username/password.
-
-Logto never learns anything about LNURL — it speaks plain OIDC (Authorization
-Code flow) to the bridge, and the bridge turns "a wallet signed a challenge"
-into a standard OIDC identity whose `sub` is the wallet's public key.
+Wire **lnurl-oidc-bridge** into a self-hosted [Logto](https://logto.io) as a
+**Standard OIDC connector**, so users can sign in with a Lightning wallet
+alongside username/password. Logto speaks plain OIDC (Authorization Code flow)
+to the bridge; the bridge turns a signed LNURL-auth challenge into an OIDC
+identity whose `sub` is the wallet's public key.
 
 ## Prerequisites
 
@@ -16,24 +14,21 @@ into a standard OIDC identity whose `sub` is the wallet's public key.
 
 ## 1. Signing key
 
-The bridge needs a **stable** RS256 key so issued ID tokens keep verifying
-across restarts. The recommended container setup (see
-[install.md](install.md)) mounts a `./data` volume and sets
-`OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem` — the key is generated and
-persisted on first boot, no manual step. Just set the issuer:
+ID tokens are signed with a **stable** RS256 key. The recommended container
+setup ([install.md](install.md)) mounts a `./data` volume with
+`OIDC_PRIVATE_KEY_FILE=/app/data/signing.pem` — generated on first boot, no
+manual step; you only set the issuer:
 
 ```bash
 OIDC_ISSUER=https://lnurl-oidc.example.com
 ```
 
-Prefer to provide the key yourself? Generate one and set `OIDC_PRIVATE_KEY` to
-its PEM contents instead:
+To supply the key yourself, generate one and set `OIDC_PRIVATE_KEY` to its PEM:
 
 ```bash
 openssl genpkey -algorithm RSA -out signing.pem -pkeyopt rsa_keygen_bits:2048
 ```
 
-(`genpkey` already writes an unencrypted PKCS#8 PEM — `-----BEGIN PRIVATE KEY-----`.)
 With neither set, the bridge refuses to start in production.
 
 ## 2. Create the connector in Logto
@@ -109,17 +104,10 @@ works.
 
 ## How the login flows
 
-1. User clicks **Sign in with Lightning**; Logto redirects to the bridge's
-   `/authorize`.
-2. The bridge renders a page with an LNURL-auth QR code.
-3. The user scans it with an LNURL-auth capable wallet, which signs the `k1`
-   challenge and calls `/lnurl/callback`.
-4. The bridge verifies the secp256k1 signature, mints a one-time authorization
-   code, and the page redirects back to Logto with `code` + `state`.
-5. Logto calls `/token`, authenticating with its client secret, and receives a
-   signed ID token whose `sub` is the wallet's lowercase-hex public key.
-6. Logto verifies the token against `/jwks.json` and creates/links a user keyed
-   on that `sub`.
+Logto redirects to `/authorize` → the bridge shows an LNURL-auth QR → the wallet
+signs `k1` and calls `/lnurl/callback` → the bridge mints a one-time code and
+redirects back to Logto → Logto exchanges it at `/token` for an RS256 ID token
+(`sub` = wallet pubkey), verified against `/jwks.json`.
 
 ## Notes
 

@@ -1,23 +1,13 @@
 # Installing on a VPS
 
 Deploy **lnurl-oidc-bridge** as a single Docker container behind
-[Traefik](https://traefik.io). The service is **stateless** — no volumes, no
-database. Everything (including the signing key) comes from `.env`, so a redeploy
-is just pulling a new image.
+[Traefik](https://traefik.io). The example [compose.yml](../compose.yml) uses:
 
-An example [compose.yml](../compose.yml) is included at the repo root. It uses:
-
-- **No `./data` volume** — challenges and authorization codes live in memory and
-  are short-lived; nothing needs to survive a restart.
-- **Traefik labels** routing `Host(lnurl-oidc-bridge.example.domain)` → container port
-  `3000`, with the `resolver` cert resolver for HTTPS.
-- **One small volume `./data`** — the only persistent state. The RS256 signing
+- **One small `./data` volume** — the only persistent state. The RS256 signing
   key is generated into it on first boot (`OIDC_PRIVATE_KEY_FILE`) and reused on
-  every restart, so issued tokens keep verifying. Challenges + codes stay in
-  memory.
-- **`env_file: .env`** for the remaining configuration.
-- A **healthcheck** that polls `/jwks.json` via Node's built-in `fetch`.
-- The external `traefik-network`.
+  restart; challenges + codes stay in memory.
+- **Traefik labels** routing `Host(...)` → port `3000` with the `resolver` cert resolver.
+- **`env_file: .env`**, a `/jwks.json` healthcheck, and the external `traefik-network`.
 
 ## 1. Place the files
 
@@ -50,14 +40,11 @@ OIDC_CLIENT_SECRET=...
 LOGTO_ENDPOINT=https://<your-logto>
 ```
 
-> Prefer to manage the key yourself (e.g. a secrets manager)? Drop the `./data`
-> volume and the `OIDC_PRIVATE_KEY_FILE` line from `compose.yml`, and set an
-> inline `OIDC_PRIVATE_KEY` PEM in `.env` instead. With neither set, the
-> container **refuses to start** in production (`NODE_ENV=production`).
->
-> Back up `./data` (or at least know that losing it rotates the key — only
-> in-flight logins are affected, since Logto keeps its own session afterward).
-> Running multiple replicas requires sharing this volume so they agree on the key.
+> Prefer to manage the key yourself? Drop the `./data` volume and
+> `OIDC_PRIVATE_KEY_FILE` from `compose.yml` and set an inline `OIDC_PRIVATE_KEY`
+> PEM instead. With neither, the container **refuses to start** in production.
+> Back up `./data` — losing it rotates the key (only in-flight logins are
+> affected); multiple replicas must share the volume.
 
 ## 3. Adjust `compose.yml`
 
