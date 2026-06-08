@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const PORT = Number(process.env.PORT ?? 3000)
+// Dedicated test port (not 3000) so the e2e server never collides with a
+// `npm run dev` instance running elsewhere on the default port.
+const PORT = Number(process.env.PORT ?? 3210)
 const baseURL = `http://localhost:${PORT}`
 
 export default defineConfig({
@@ -15,7 +17,9 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npm run dev',
+    // Run the server directly (not `tsx watch`): watch mode spawns a child
+    // process Playwright can't reap, which lingers on the port between runs.
+    command: 'npx tsx src/server.ts',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

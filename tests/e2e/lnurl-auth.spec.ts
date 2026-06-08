@@ -4,7 +4,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { bytesToHex } from '@noble/curves/abstract/utils'
 
 const CLIENT_ID = 'test-client'
-const REDIRECT_URI = 'http://localhost:3000/cb'
+const REDIRECT_URI = 'http://localhost:3210/cb'
 
 function authorizeUrl(params: Record<string, string> = {}): string {
   const q = new URLSearchParams({

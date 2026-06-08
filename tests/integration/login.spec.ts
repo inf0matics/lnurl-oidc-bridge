@@ -10,7 +10,7 @@ test('a user logs into the mock Logto RP with a Lightning wallet, end to end', a
   // 1. Start at the RP; it redirects the browser to the bridge login page.
   await page.goto('/login')
   await expect(page).toHaveURL(/localhost:3010\/authorize/)
-  await expect(page.getByRole('heading', { name: 'Sign in with Lightning' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Login with Lightning' })).toBeVisible()
 
   // 2. Read the LNURL off the page and act as the wallet: sign k1 and hit the
   //    bridge's LNURL callback over a separate channel (as a real wallet would).

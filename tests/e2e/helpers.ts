@@ -3,10 +3,11 @@ import { bech32 } from '@scure/base'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { bytesToHex } from '@noble/curves/abstract/utils'
 
-export const ISSUER = 'http://localhost:3000'
+// Must match playwright.config.ts (dedicated test port, not 3000).
+export const ISSUER = 'http://localhost:3210'
 export const CLIENT_ID = 'test-client'
 export const CLIENT_SECRET = 'test-secret'
-export const REDIRECT_URI = 'http://localhost:3000/cb'
+export const REDIRECT_URI = 'http://localhost:3210/cb'
 
 export function authorizeUrl(params: Record<string, string> = {}): string {
   const q = new URLSearchParams({

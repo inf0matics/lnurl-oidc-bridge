@@ -53,7 +53,7 @@ test('a code_challenge with S256 is accepted and renders the login page', async 
     authorizeUrl({ code_challenge: 'abc', code_challenge_method: 'S256' }),
   )
   expect(res.status()).toBe(200)
-  expect(await res.text()).toContain('Sign in with Lightning')
+  expect(await res.text()).toContain('Login with <span class="lit">Lightning</span>')
 })
 
 test('a duplicated client_id (array) is rejected, not smuggled through', async ({ request }) => {
