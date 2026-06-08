@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.0
+
+First stable release. The LNURL-auth → OpenID Connect bridge is feature-complete:
+Lightning sign-in **and** Logto account-center linking both work in production,
+backed by unit, e2e, and cross-service integration tests gating every change. See
+the `v0.0.x` sections below for the full development history.
+
+[compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.5...v1.0.0)
+
+### 🏡 Chore
+
+- Add bump-major script for major releases ([d39e20e](https://github.com/inf0matics/lnurl-oidc-bridge/commit/d39e20e))
+
+### ❤️ Contributors
+
+- Inf0matics <fil@thespielplatz.com>
+
 ## v0.0.5
 
 [compare changes](https://github.com/inf0matics/lnurl-oidc-bridge/compare/v0.0.4...v0.0.5)
