@@ -4,6 +4,46 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.2
+
+
+### 🚀 Enhancements
+
+- Scaffold h3 hello-world with Playwright e2e ([c540a4f](https://github.com/inf0matics/lnurl-oidc-bridge/commit/c540a4f))
+- Add OIDC discovery and JWKS endpoints ([70b7dcc](https://github.com/inf0matics/lnurl-oidc-bridge/commit/70b7dcc))
+- Add LNURL-auth login flow and authorization endpoint ([2eb3c13](https://github.com/inf0matics/lnurl-oidc-bridge/commit/2eb3c13))
+- Add OIDC token endpoint issuing signed ID tokens ([2c94e40](https://github.com/inf0matics/lnurl-oidc-bridge/commit/2c94e40))
+- Support OIDC_PRIVATE_KEY_FILE and forbid ephemeral key in prod ([1630ec7](https://github.com/inf0matics/lnurl-oidc-bridge/commit/1630ec7))
+- Harden /authorize and bound the in-memory store ([a2cba4c](https://github.com/inf0matics/lnurl-oidc-bridge/commit/a2cba4c))
+- Add connector logos served at /logo.svg and /logo-dark.svg ([192a039](https://github.com/inf0matics/lnurl-oidc-bridge/commit/192a039))
+
+### 🩹 Fixes
+
+- Correct signing-key command and add .dockerignore ([1fd87c7](https://github.com/inf0matics/lnurl-oidc-bridge/commit/1fd87c7))
+
+### 📖 Documentation
+
+- Add README and Logto setup guide ([ddf951f](https://github.com/inf0matics/lnurl-oidc-bridge/commit/ddf951f))
+- Add example compose.yml for VPS deploy behind Traefik ([6696be2](https://github.com/inf0matics/lnurl-oidc-bridge/commit/6696be2))
+- Add VPS install guide and link from README ([92b5d64](https://github.com/inf0matics/lnurl-oidc-bridge/commit/92b5d64))
+
+### 🏡 Chore
+
+- Add LICENSE ([cbc6093](https://github.com/inf0matics/lnurl-oidc-bridge/commit/cbc6093))
+
+### ✅ Tests
+
+- Cover token-endpoint auth, redirect binding, code expiry ([6da2dc7](https://github.com/inf0matics/lnurl-oidc-bridge/commit/6da2dc7))
+- Add cross-service integration test with a mock Logto RP ([5b6002b](https://github.com/inf0matics/lnurl-oidc-bridge/commit/5b6002b))
+
+### 🤖 CI
+
+- Run lint and e2e tests on every push and PR ([28b3552](https://github.com/inf0matics/lnurl-oidc-bridge/commit/28b3552))
+
+### ❤️ Contributors
+
+- Inf0matics <fil@thespielplatz.com>
+
 ## [Unreleased]
 
 ### Added
